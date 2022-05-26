@@ -17,5 +17,8 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.button5),findViewById(R.id.button6),findViewById(R.id.button7)};
         symbolList=new Button[]{findViewById(R.id.button2),findViewById(R.id.button3),findViewById(R.id.button4),findViewById(R.id.button8),
                 findViewById(R.id.button12),findViewById(R.id.button16),findViewById(R.id.button18)};
+        for(Button button:numberList ){
+
+        }
     }
 }
