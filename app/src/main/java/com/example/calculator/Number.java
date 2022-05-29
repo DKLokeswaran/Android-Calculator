@@ -32,4 +32,8 @@ public class Number {
     public int getNum() {
         return num;
     }
+
+    public int getLen() {
+        return len;
+    }
 }
