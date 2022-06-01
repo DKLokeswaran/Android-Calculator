@@ -9,7 +9,7 @@ public class Number {
         this.LIMIT=LIMIT;
     }
     public boolean updateNumber(int a){
-        if(num+1<=LIMIT){
+        if(len+1<=LIMIT){
             num=num*10+a;
             len++;
             return true;
@@ -19,7 +19,7 @@ public class Number {
         }
     }
     public boolean backSpace(){
-        if(num-1>=0){
+        if(len-1>=0){
             num/=10;
             len--;
             return true;

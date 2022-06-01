@@ -4,6 +4,10 @@ public class Integer {
     private static int MAX_LIMIT=15;
     private Number number;
     private int num,pos;
+    public Integer(){
+        number=new Number(MAX_LIMIT);
+        updateNum();
+    }
     public Integer(int pos){
         number=new Number(MAX_LIMIT);
         this.pos=pos;
