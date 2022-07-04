@@ -232,13 +232,14 @@
         app:layout_constraintStart_toEndOf="@+id/button15"
         app:layout_constraintTop_toBottomOf="@+id/button12" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/question"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:layout_marginEnd="32dp"
         android:textSize="40sp"
+        android:textAlignment="textEnd"
+        android:hint="Enter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -253,7 +254,7 @@
         app:srcCompat="@drawable/ic_backspace_foreground" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
