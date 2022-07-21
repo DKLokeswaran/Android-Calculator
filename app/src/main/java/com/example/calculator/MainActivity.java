@@ -8,20 +8,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.mariuszgromada.math.mxparser.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button numberList[],symbolList[],clearButton,dotButton,plusMinus;
+    //Declaring the variables required
+    private Button numberList[],symbolList[],clearButton,dotButton,plusMinus,equalButton;
     private TextView answerBox;
     private EditText questionBox;
-    private int KEY=15;
-    private String question;
-    private int k;
+    private int MAXIMUM_LIMIT_LENGTH =15;
+
     private ImageButton backSpace;
+    private Expression exp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        //Initialising the variables required
         numberList=new Button[]{findViewById(R.id.button20),findViewById(R.id.button13),findViewById(R.id.button14),findViewById(R.id.button15),
                 findViewById(R.id.button9),findViewById(R.id.button10),findViewById(R.id.button11),
                 findViewById(R.id.button5),findViewById(R.id.button6),findViewById(R.id.button7)};
@@ -30,46 +35,66 @@ public class MainActivity extends AppCompatActivity {
         dotButton=findViewById(R.id.button18);
         clearButton=findViewById(R.id.button);
         questionBox=findViewById(R.id.question);
+
+        //Disabling the virtual keyboard when edittext is clicked
         questionBox.setShowSoftInputOnFocus(false);
+
         answerBox=findViewById(R.id.textView);
         backSpace=findViewById(R.id.button17);
         plusMinus=findViewById(R.id.button19);
-        k=0;
+        equalButton=findViewById(R.id.button21);
+
+
+        //Onclick Listeners for handling numbers
         for(Button number: numberList){
             number.setOnClickListener(v -> {
-                if(isWithinLimit()){
+                if(isLengthWithinLimit()){
                     editQuestion(number.getText().toString());
+                    evaluateExp();
                 }
                 else{
                     Toast.makeText(this, "limit", Toast.LENGTH_SHORT).show();
                 }
             });
         }
+
+
+        //Onclick Listeners for handling symbols
         for(Button symbol: symbolList){
             symbol.setOnClickListener(v->{
                 editQuestion(symbol.getText().toString());
-                k=0;
+                evaluateExp();
             });
         }
+
+
         dotButton.setOnClickListener(v->{
             editQuestion(".");
+            evaluateExp();
         });
+
+
         clearButton.setOnClickListener(v->{
             questionBox.setText("");
-            k=0;
+            answerBox.setText("");
         });
+
+
         backSpace.setOnClickListener(v->{
-            String str,s1,s2,sNew;
-            str = questionBox.getText().toString();
-            int pos=questionBox.getSelectionStart();
-            if(pos!=0&&str.length()!=0){
-                s1=str.substring(0,pos-1);
-                s2=str.substring(pos);
-                sNew=s1+s2;
-                questionBox.setText(sNew);
-                questionBox.setSelection(pos-1);
+            String question,questionBeforeCursor, questionAfterCursor,questionNew;
+            question = questionBox.getText().toString();
+            int cursorPos=questionBox.getSelectionStart();
+            if(cursorPos!=0&&question.length()!=0){
+                questionBeforeCursor=question.substring(0,cursorPos-1);
+                questionAfterCursor =question.substring(cursorPos);
+                questionNew=questionBeforeCursor+ questionAfterCursor;
+                questionBox.setText(questionNew);
+                questionBox.setSelection(cursorPos-1);
             }
+            evaluateExp();
         });
+
+
         plusMinus.setOnClickListener(v->{
             String str,s1,s2,strNew;
             str = questionBox.getText().toString();
@@ -85,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = pos - 1; i >= 0; i--) {
                     char ch=str.charAt(i);
                     if (i == 0){
-                        minusPresent=false;
                         break;
                     }
                     if(ch=='-'&&str.charAt(i-1)=='('){
@@ -93,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     if(isBracket(ch)||isOperator(ch)){
-                        minusPresent=false;
                         break;
                     }
                 }
@@ -134,50 +157,89 @@ public class MainActivity extends AppCompatActivity {
                     questionBox.setSelection(pos+2);
                 }
             }
+            evaluateExp();
+
+        });
+
+
+        equalButton.setOnClickListener(v->{
+            String question=questionBox.getText().toString().replaceAll("x","*");
+            exp=new Expression(question);
+            if(exp.checkSyntax()){
+                String answer=String.valueOf(exp.calculate());
+                answerBox.setText("");
+                questionBox.setText(answer);
+                questionBox.setSelection(answer.length());
+            }
+            else{
+                Toast.makeText(this, "Wrong Syntax", Toast.LENGTH_SHORT).show();
+            }
 
         });
 
 
 
+
     }
-    public boolean isWithinLimit(){
-        int k=0;
-        String str=questionBox.getText().toString();
-        int pos=questionBox.getSelectionStart();
-        for(int i=pos-1;i>=0;i--){
-            char ch=str.charAt(i);
+
+
+    //Function for evaluating the expression in the textbox
+    private void evaluateExp(){
+        String question=questionBox.getText().toString().replaceAll("x","*");
+        exp=new Expression(question);
+        if(exp.checkSyntax()){
+            answerBox.setText(String.valueOf(exp.calculate()));
+        }
+        else {
+            answerBox.setText("");
+        }
+
+    }
+
+
+    //Function to check whether length of each number in expression is within the limit
+    private boolean isLengthWithinLimit(){
+        int counter=0;
+        String question=questionBox.getText().toString();
+        int cursorPos=questionBox.getSelectionStart();
+        for(int i=cursorPos-1;i>=0;i--){
+            char ch=question.charAt(i);
             if(isBracket(ch)||isOperator(ch)){
                 break;
             }
             if(ch=='.'){
                 continue;
             }
-            k++;
+            counter++;
         }
-        for(int i=pos;i<str.length();i++)
+        for(int i=cursorPos;i<question.length();i++)
         {
-            char ch=str.charAt(i);
+            char ch=question.charAt(i);
             if(isBracket(ch)||isOperator(ch)){
                 break;
             }
             if(ch=='.'){
                 continue;
             }
-            k++;
+            counter++;
         }
-        return k<KEY;
+        return counter< MAXIMUM_LIMIT_LENGTH;
     }
-    public void editQuestion(String s){
-        String q,q1,q2,qNew;
-        q=questionBox.getText().toString();
-        int pos=questionBox.getSelectionStart();
-        q1=q.substring(0,pos);
-        q2=q.substring(pos);
-        qNew=q1+s+q2;
-        questionBox.setText(qNew);
-        questionBox.setSelection(pos+1);
+
+    //Function for editing question when any button is clicked
+    private void editQuestion(String s){
+        String question,questionBeforeCursor,questionAfterCursor,questionNew;
+        question=questionBox.getText().toString();
+        int cursorPos=questionBox.getSelectionStart();
+        questionBeforeCursor=question.substring(0,cursorPos);
+        questionAfterCursor=question.substring(cursorPos);
+        questionNew=questionBeforeCursor+s+questionAfterCursor;
+        questionBox.setText(questionNew);
+        questionBox.setSelection(cursorPos+1);
     }
-    public boolean isOperator(char ch){
+
+
+    private boolean isOperator(char ch){
         switch(ch){
             case '+':
             case '-':
@@ -186,11 +248,14 @@ public class MainActivity extends AppCompatActivity {
             default: return false;
         }
     }
-    public boolean isBracket(char ch){
+
+
+    private boolean isBracket(char ch){
         switch (ch){
             case '(':
             case ')': return true;
             default: return false;
         }
     }
+
 }
