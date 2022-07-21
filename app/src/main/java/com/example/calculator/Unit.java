@@ -11,6 +11,11 @@ public class Unit {
         this.key = key;
     }
 
+    public Unit(String name, String id) {
+        this.id = id;
+        this.name = name;
+    }
+
     public String getId() {
         return id;
     }
@@ -21,5 +26,9 @@ public class Unit {
 
     public String getName() {
         return name;
+    }
+
+    public void setKey(double key) {
+        this.key = key;
     }
 }

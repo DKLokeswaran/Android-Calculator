@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.mariuszgromada.math.mxparser.*;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ConverterActivity extends AppCompatActivity {
 
     private Button numberList[],clearButton,dotButton,plusMinus;
@@ -23,7 +27,7 @@ public class ConverterActivity extends AppCompatActivity {
     private ArrayList<Quantity> quantities;
     private ArrayList<Unit> temp1;
     private Quantity temp2;
-    private int MASS=0,LENGTH=1,AREA=2,SPEED=3,VOLUME=4;
+    private int MASS=0,LENGTH=1,AREA=2,SPEED=3,VOLUME=4,CURRENCY=5;
     private Spinner quantitySpinner,unitsSpinner[];
     private EditText queryBoxes[];
     private ArrayAdapter<String> quantityAdapter;
@@ -86,6 +90,19 @@ public class ConverterActivity extends AppCompatActivity {
                 new Unit("Cubic Foot","ft",0.03531467),
                 new Unit("Cubic Inch","in",61.0237441)));
         updateQuantities(VOLUME);
+        temp1.addAll(Arrays.asList(new Unit("Indian Rupee","INR"),
+                new Unit("United States Dollar","USD"),
+                new Unit("Euro","EUR"),
+                new Unit("Pound Sterling","GBP"),
+                new Unit("Singapore Dollar","SGD"),
+                new Unit("Australian Dollar","AUD"),
+                new Unit("Japanese Yen","JPY"),
+                new Unit("Chinese Yuan","CNY"),
+                new Unit("Pakistan Rupee","PKR"),
+                new Unit("Sri Lankan Rupee","LKR"),
+                new Unit("Kuwaiti Dinar","KWD")));
+        retriveDataFromAPI();
+        updateQuantities(CURRENCY);
         quantitySpinner=findViewById(R.id.quantity_spinner);
         unitsSpinner=new Spinner[]{findViewById(R.id.spinner2),findViewById(R.id.spinner3)};
         queryBoxes=new EditText[]{findViewById(R.id.query_column_1),findViewById(R.id.query_column_2)};
@@ -229,6 +246,8 @@ public class ConverterActivity extends AppCompatActivity {
                     break;
             case 4:name="Volume";
                     break;
+            case 5:name="Currency";
+                    break;
         }
         temp2=new Quantity(name, (ArrayList<Unit>) temp1.clone());
         quantities.add(temp2);
@@ -298,6 +317,28 @@ public class ConverterActivity extends AppCompatActivity {
         }
         if(input.length()==0){
             queryBoxes[1-KEY].setText("");
+        }
+    }
+
+    private void retriveDataFromAPI(){
+        for(Unit unit:temp1){
+            Call<Currency> call=ApiRetriver.getInterface().getKey(unit.getId());
+            call.enqueue(new Callback<Currency>() {
+                @Override
+                public void onResponse(Call<Currency> call, Response<Currency> response) {
+                    if(response.isSuccessful()){
+                        unit.setKey(response.body().getResult());
+                    }
+                    else{
+                        Toast.makeText(ConverterActivity.this, response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Currency> call, Throwable t) {
+                    Toast.makeText(ConverterActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 

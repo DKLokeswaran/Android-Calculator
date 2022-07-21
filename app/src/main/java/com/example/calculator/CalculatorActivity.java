@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.mariuszgromada.math.mxparser.*;
 
-public class MainActivity extends AppCompatActivity {
+public class CalculatorActivity extends AppCompatActivity {
 
     //Declaring the variables required
     private Button numberList[],symbolList[],clearButton,dotButton,plusMinus,equalButton;
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_calculator);
 
 
         //Initialising the variables required
